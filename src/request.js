@@ -18,10 +18,16 @@ export default function request(baseUrl, path, options) {
       const response = {
         status: res.status,
         headers,
+        url: res.url
       };
 
       if (res.status !== 204) {
-        return res.json().then(body => ({ ...response, body }));
+        // 404 may encounter SyntaxError: Unexpected token < in JSON at position 0 
+        try {
+          return res.json().then(body => ({ ...response, body }));
+        } catch(err) {
+          return Promise.resolve(response);
+        }
       }
 
       return Promise.resolve(response);
